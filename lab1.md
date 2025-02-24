@@ -72,6 +72,7 @@ As in purely mathematical automata, grammar automata can produce a wide variety 
 
 The formality of automata theory can be applied to the analysis and manipulation of actual human language as well as the development of human-computer interaction (HCI) and artificial intelligence (AI). [3]
 
+---
 
 ## **3. Limitations of Finite Automata**
 
