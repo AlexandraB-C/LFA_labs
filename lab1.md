@@ -55,7 +55,7 @@ Language (L) = {abab, aababb, ...}
 
 ---
 
-## **3. Limitations of Finite Automata**
+## **2. Limitations of Finite Automata**
 
 Finite Automata (FA) are powerful computational models, but they have some limitations that make them unsuitable for certain types of problems:
 
@@ -67,7 +67,7 @@ Finite Automata (FA) are powerful computational models, but they have some limit
 
 ---
 
-## **4. Applications of Automata Theory**
+## **3. Applications of Automata Theory**
 
 Despite these limitations, Automata Theory is widely used in various fields of computer science and technology:
 
@@ -81,7 +81,7 @@ Despite these limitations, Automata Theory is widely used in various fields of c
 
 ---
 
-## **5. Objectives**
+## **4. Objectives**
 
 - Understand what constitutes a formal language.
 - Set up the foundation for the semester-long project.
@@ -98,7 +98,7 @@ Despite these limitations, Automata Theory is widely used in various fields of c
 
 ---
 
-## **6. Implementation**
+## **5. Implementation**
 
 ### **Variant 4:**
 ```
@@ -201,7 +201,7 @@ fa = g.to_fa()
 
 ---
 
-## **7. Conclusions**
+## **6. Conclusions**
 
 In this lab, we tested how formal languages and finite automata work together. First, we defined a grammar using a set of rules that generate valid strings. Then, we implemented a program to generate multiple valid strings using random rule applications. After that, we converted the grammar into a finite automaton (FA), treating non-terminals as states and terminals as transitions. We tested the FA by checking if different input strings were accepted or rejected. 
 
@@ -216,7 +216,7 @@ Overall, this lab helped us understand how formal languages define patterns and 
 
 ---
 
-## **8. Bibliography**
+## **7. Bibliography**
 
 1. [Regular Grammars - GitHub](https://github.com/filpatterson/DSL_laboratory_works/blob/master/1_RegularGrammars/task.md)
 2. [Theory of Computation - GeeksforGeeks](https://www.geeksforgeeks.org/theory-of-computation-automata-tutorials/)
