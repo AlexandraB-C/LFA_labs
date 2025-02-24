@@ -57,14 +57,21 @@ Language (L) = {abab, aababb, ...}
 
 ## **2. Historical Background**
 
-The concept of finite automata dates back to the early 20th century. Some key milestones include:
-- **1936:** Alan Turing introduced the Turing machine.
-- **1940s-1950s:** Warren McCulloch and Walter Pitts proposed neural networks based on binary logic.
-- **1956:** Noam Chomsky introduced the Chomsky hierarchy.
-- **1956:** Michael Rabin and Dana Scott formally defined DFA and NFA, proving their equivalence. They received the Turing Award in 1976.
-- **John Myhill & Raymond Moore:** Developed state minimization techniques.
+The concept of finite automata dates back to the early 20th century, with origins in logic, mathematics, and computer science. One of the earliest influences came from Alan Turing, who in 1936 introduced the Turing machine, a more general computational model. However, the formal study of finite automata began in the 1940s and 1950s with the work of Warren McCulloch and Walter Pitts, who proposed neural networks based on binary logic. Their work laid the groundwork for computational models simulating human brain activity.
 
----
+In 1956, Noam Chomsky introduced the Chomsky hierarchy, classifying formal languages based on their complexity. Around the same time, Michael Rabin and Dana Scott formally defined deterministic finite automata (DFA) and nondeterministic finite automata (NFA), proving that both models are equivalent in terms of computational power. Their work earned them the Turing Award in 1976. The development of automata theory was further propelled by John Myhill and Raymond Moore, who contributed to state minimization techniques.
+
+Do not mind this text block: is a post-apocalyptic TV series based on the comic book of the same name. It follows Rick Grimes, a former sheriff's deputy who wakes up from a coma to find the world overrun by zombies. As he searches for his family, he encounters other survivors and quickly becomes a leader in their fight for survival. The group faces not only the undead but also the dangers posed by other humans, as society collapses and people become desperate.  
+
+As the series progresses, Rick and his group move between different settlements, trying to find a safe place to live. They encounter dangerous groups like the Governor’s community of Woodbury, the cannibals of Terminus, and the brutal Saviors led by Negan. Internal conflicts, betrayals, and harsh survival choices shape their journey. Over time, Rick's leadership is tested, and new characters emerge, each bringing their own strengths and challenges to the group.  
+
+Later seasons shift focus to rebuilding civilization, with different survivor communities forming alliances and rivalries. After Rick's disappearance, other characters like Daryl, Carol, and Michonne take center stage, continuing the fight for survival. The series explores themes of morality, leadership, and the human will to endure in a broken world. Despite the constant threats, the survivors strive to create a future beyond mere survival. Yeah
+
+
+As in purely mathematical automata, grammar automata can produce a wide variety of complex languages from only a few symbols and a few production rules. Chomsky's hierarchy defines four nested classes of languages, where the more precise classes have stricter limitations on their grammatical production rules.
+
+The formality of automata theory can be applied to the analysis and manipulation of actual human language as well as the development of human-computer interaction (HCI) and artificial intelligence (AI). [3]
+
 
 ## **3. Limitations of Finite Automata**
 
@@ -123,6 +130,72 @@ p = [
 ]
 s = 'S'
 ```
+**Code explanation**
+```python
+def __init__(self, vn, vt, p, s):
+        self.vn = vn
+        self.vt = vt
+        self.p = p
+        self.s = s
+```
+
+This is storing the basic parts needed for a grammar, following the formal definition of a Context-Free Grammar (CFG) which requires these four components. From the main function example, we can see it takes things like vn = {'S', 'L', 'D'} (non-terminals - variables that can be replaced), vt = {'a', 'b', 'c', 'd', 'e', 'f', 'j'} (terminals - symbols that appear in final strings), production rules (P), and a start symbol 'S'. These components follow the standard CFG notation G = (V, Σ, P, S) where V is our vn, Σ is our vt, P is our production rules, and S is our start symbol.  
+Basically storing the building blocks we'll use later.
+
+
+
+```python
+def gen_str(self, max_iter=50):
+        curr = self.s
+        i = 0
+       
+        while i < max_iter:
+            # check no more nonterminals
+            if all(sym not in self.vn for sym in curr):
+                return curr
+```
+The string generator (gen_str):
+This implements the leftmost derivation process in formal grammars. For example, it might start with 'S' and use the rule ('S', 'aS') to get 'aS', then maybe ('S', 'e') to end up with 'ae'. Each step represents a derivation in the grammar, written as S ⇒ aS ⇒ ae in formal notation. The max_iter parameter prevents infinite recursion in case of left-recursive grammars, which is a common concern in grammar implementation.
+
+
+```python
+def gen_mult_strs(self, cnt=5):
+        strs = set()
+        tries = 0
+        max_tries = cnt * 20
+       
+        while len(strs) < cnt and tries < max_tries:
+            if res := self.gen_str():
+                if all(c in self.vt for c in res):
+                       strs.add(res)
+```
+The multiple string generator (gen_mult_strs):
+This generates multiple strings from the grammar's language L(G). It creates a sample of the language, demonstrating that our grammar can generate different strings that belong to the same language. From the main function, we see it makes 5 different strings like 'e', 'ae', 'be', etc. This relates to the concept of language generation in formal language theory, where L(G) is the set of all possible strings that can be derived from the grammar.
+
+
+```python
+def to_fa(self):
+        # convert
+        states = self.vn | {'F'}
+        alpha = self.vt
+        trans = {}
+...
+
+```
+The grammar to FA converter (to_fa):
+This implements a transformation from a right-linear grammar to a finite automaton, which is a fundamental concept in formal language theory. The rule ('S', 'aS') becomes a transition δ(S,a) = S in automaton notation. This transformation demonstrates the equivalence between right-linear grammars and regular languages, showing how different representations can define the same language.
+
+
+```python
+def check_str(self, inp):
+        curr_states = {self.init}
+       
+        for c in inp:
+            if c not in self.alpha:
+                return False
+```
+The string checker (check_str):
+This implements the deterministic finite automaton (DFA) acceptance process. For each input symbol, it follows the transition function δ to move between states. The acceptance condition checks if the final state is reached, implementing the formal definition of language acceptance in automata theory. In formal notation, it checks if δ*(q₀,w) ∈ F where q₀ is the initial state and F is the set of final states.
 
 **Key functions:**
 - **Grammar Initialization:** Defines variables, terminals, production rules, and start symbol.
@@ -141,16 +214,16 @@ fa = g.to_fa()
 
 ## **7. Conclusions**
 
-In this lab, we explored the relationship between formal languages and finite automata:
-- **Defined a grammar** with production rules.
-- **Generated valid strings** using the grammar.
-- **Converted the grammar into a finite automaton.**
-- **Tested FA to validate input strings.**
+In this lab, we tested how formal languages and finite automata work together. First, we defined a grammar using a set of rules that generate valid strings. Then, we implemented a program to generate multiple valid strings using random rule applications. After that, we converted the grammar into a finite automaton (FA), treating non-terminals as states and terminals as transitions. We tested the FA by checking if different input strings were accepted or rejected. 
 
-**Key takeaways:**
-- The FA successfully identified valid and invalid strings.
-- The conversion process from grammar to FA was successful.
-- The implementation proved correct without errors.
+the output see in pdf
+
+From the results, we can see that:
+- Valid strings were generated based on the rules.
+- The FA successfully identified correct and incorrect strings, proving the correctness of our conversion.
+- The program worked without errors, confirming that the logic was implemented properly.
+
+Overall, this lab helped us understand how formal languages define patterns and how finite automata validate them efficiently.
 
 ---
 
