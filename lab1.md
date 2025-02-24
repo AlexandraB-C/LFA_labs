@@ -55,41 +55,29 @@ Language (L) = {abab, aababb, ...}
 
 ---
 
-## **2. Historical Background**
-
-The concept of finite automata dates back to the early 20th century, with origins in logic, mathematics, and computer science. One of the earliest influences came from Alan Turing, who in 1936 introduced the Turing machine, a more general computational model. However, the formal study of finite automata began in the 1940s and 1950s with the work of Warren McCulloch and Walter Pitts, who proposed neural networks based on binary logic. Their work laid the groundwork for computational models simulating human brain activity.
-
-In 1956, Noam Chomsky introduced the Chomsky hierarchy, classifying formal languages based on their complexity. Around the same time, Michael Rabin and Dana Scott formally defined deterministic finite automata (DFA) and nondeterministic finite automata (NFA), proving that both models are equivalent in terms of computational power. Their work earned them the Turing Award in 1976. The development of automata theory was further propelled by John Myhill and Raymond Moore, who contributed to state minimization techniques.
-
-Do not mind this text block: is a post-apocalyptic TV series based on the comic book of the same name. It follows Rick Grimes, a former sheriff's deputy who wakes up from a coma to find the world overrun by zombies. As he searches for his family, he encounters other survivors and quickly becomes a leader in their fight for survival. The group faces not only the undead but also the dangers posed by other humans, as society collapses and people become desperate.  
-
-As the series progresses, Rick and his group move between different settlements, trying to find a safe place to live. They encounter dangerous groups like the Governor’s community of Woodbury, the cannibals of Terminus, and the brutal Saviors led by Negan. Internal conflicts, betrayals, and harsh survival choices shape their journey. Over time, Rick's leadership is tested, and new characters emerge, each bringing their own strengths and challenges to the group.  
-
-Later seasons shift focus to rebuilding civilization, with different survivor communities forming alliances and rivalries. After Rick's disappearance, other characters like Daryl, Carol, and Michonne take center stage, continuing the fight for survival. The series explores themes of morality, leadership, and the human will to endure in a broken world. Despite the constant threats, the survivors strive to create a future beyond mere survival. Yeah
-
-
-As in purely mathematical automata, grammar automata can produce a wide variety of complex languages from only a few symbols and a few production rules. Chomsky's hierarchy defines four nested classes of languages, where the more precise classes have stricter limitations on their grammatical production rules.
-
-The formality of automata theory can be applied to the analysis and manipulation of actual human language as well as the development of human-computer interaction (HCI) and artificial intelligence (AI). [3]
-
----
-
 ## **3. Limitations of Finite Automata**
 
-While FA are powerful in many areas, they have some limitations:
-- **Lack of Memory:** FA cannot recognize non-regular languages (e.g., balancing parentheses).
-- **Inability to Process Context-Free Languages:** FA cannot handle nested structures (e.g., arithmetic expressions).
-- **State Explosion Problem:** DFA conversion from an NFA can lead to an exponential increase in the number of states.
+Finite Automata (FA) are powerful computational models, but they have some limitations that make them unsuitable for certain types of problems:
+
+- **Lack of Memory:** FA do not have memory or the ability to count, meaning they cannot recognize non-regular languages. For example, they cannot determine whether a string has balanced parentheses (e.g., `((()))` vs. `(()))`). Since FA only process input sequentially without storing previous states, they fail in tasks requiring long-term dependencies.
+
+- **Inability to Process Context-Free Languages:** FA are incapable of handling nested structures, such as arithmetic expressions with multiple levels of parentheses (e.g., `(a + (b * c))`). These structures require memory to track which parts belong together, something FA lacks. Context-free languages, which require pushdown automata (PDA) to be processed correctly, cannot be handled by FA.
+
+- **State Explosion Problem:** When converting a Nondeterministic Finite Automaton (NFA) into a Deterministic Finite Automaton (DFA), the number of states can grow exponentially. This results in an impractical number of states for complex languages, making FA inefficient in certain scenarios. Large state spaces also increase computation time and storage requirements.
 
 ---
 
 ## **4. Applications of Automata Theory**
 
-Automata are widely used in:
-- **Lexical analysis:** Compilers use FA to identify keywords and tokens.
-- **Pattern matching:** FA are used in regex engines and text search algorithms.
-- **Network security:** Packet validation in firewalls.
-- **Artificial Intelligence & NLP:** Speech and text processing.
+Despite these limitations, Automata Theory is widely used in various fields of computer science and technology:
+
+- **Lexical Analysis:** Compilers use FA to analyze and break down source code into tokens, such as keywords, operators, and identifiers. This is the first step in compiling a programming language and helps ensure that code follows the correct syntax.
+
+- **Pattern Matching:** FA play a crucial role in text searching algorithms, particularly in regular expression (regex) engines. Applications like search engines, text editors, and data validation tools rely on FA to identify specific patterns in large text files quickly and efficiently.
+
+- **Network Security:** FA are used in firewalls and intrusion detection systems for packet validation. They help determine whether network packets conform to expected security rules, blocking malicious traffic and improving cybersecurity.
+
+- **Artificial Intelligence & NLP:** In natural language processing (NLP), FA are used in tasks like speech recognition, text processing, and chatbots. They help in parsing sentences, identifying word structures, and processing simple language commands in AI applications.
 
 ---
 
