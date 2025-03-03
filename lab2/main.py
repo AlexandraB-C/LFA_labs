@@ -4,7 +4,6 @@ import numpy as np
 
 class Grammar:
     def __init__(self, vn, vt, p, s):
-        # init grammar
         self.VN = vn  # non-terms
         self.VT = vt  # terms
         self.P = p    # rules
@@ -30,7 +29,6 @@ class Grammar:
         
         if is_right or is_left:
             return "Type 3 (Regular Grammar)"
-        
         # check type 2 (context-free)
         is_cf = True
         for lhs, rhs_list in self.P.items():
@@ -45,7 +43,6 @@ class Grammar:
         is_cs = True
         for lhs, rhs_list in self.P.items():
             for rhs in rhs_list:
-                # exception for S→ε
                 if len(rhs) == 0 and lhs == self.S:
                     s_on_rhs = False
                     for _, prods in self.P.items():
@@ -63,14 +60,10 @@ class Grammar:
         
         if is_cs:
             return "Type 1 (Context-Sensitive Grammar)"
-        
-        # else type 0
         return "Type 0 (Unrestricted Grammar)"
-
 
 class FiniteAutomaton:
     def __init__(self, q, sigma, delta, q0, f):
-        # init fa
         self.Q = q          # states
         self.Sigma = sigma  # alphabet
         self.Delta = delta  # transitions
@@ -78,7 +71,6 @@ class FiniteAutomaton:
         self.F = f          # final states
     
     def is_deterministic(self):
-        # check if dfa
         for state in self.Q:
             if state not in self.Delta: continue
             
@@ -91,7 +83,7 @@ class FiniteAutomaton:
         return True
     
     def to_regular_grammar(self):
-        # fa → reg grammar
+        # fa to reg grammar
         vn = set(self.Q)
         vt = set(self.Sigma)
         p = {state: [] for state in self.Q}
@@ -104,17 +96,16 @@ class FiniteAutomaton:
                 if sym not in self.Delta[state]: continue
                 
                 for next_state in self.Delta[state][sym]:
-                    # add A→aB
+                    # add A -> aB
                     p[state].append(sym + next_state)
         
-        # add A→ε for final states
         for state in self.F:
             p[state].append("")
         
         return Grammar(vn, vt, p, s)
     
     def to_dfa(self):
-        # ndfa → dfa
+        # ndfa to dfa
         if self.is_deterministic(): return self
         
         # init dfa
@@ -124,7 +115,6 @@ class FiniteAutomaton:
         dfa_q0 = frozenset([self.q0])
         dfa_f = set()
         
-        # bfs queue
         queue = [dfa_q0]
         done = set()
         
@@ -143,11 +133,9 @@ class FiniteAutomaton:
                     dfa_f.add(curr_name)
                     break
             
-            # init transitions
             if curr_name not in dfa_delta:
                 dfa_delta[curr_name] = {}
             
-            # process each sym
             for sym in self.Sigma:
                 next_states = set()
                 
@@ -226,7 +214,7 @@ class FiniteAutomaton:
         x0, y0 = pos[self.q0]
         plt.annotate('', xy=(x0, y0), xytext=(x0-0.3, y0),
                    arrowprops=dict(arrowstyle='->', lw=2, color='black'))
-        plt.text(x0-0.35, y0, 'start', fontsize=12)
+        plt.text(x0-0.35, y0, '', fontsize=12)
         
         # legend
         reg_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='lightblue', 
@@ -241,9 +229,7 @@ class FiniteAutomaton:
         
         return plt
 
-
 def main():
-    # var from assignment
     states = {"q0", "q1", "q2", "q3"}
     alphabet = {"a", "b"}
     transitions = {

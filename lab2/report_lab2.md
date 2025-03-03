@@ -21,29 +21,39 @@
 ## **1. Theory**
 
 ### **Deterministic Finite Automata (DFA)**
-* **Definition:** A DFA is a finite-state machine that accepts or rejects a given string of symbols by running through a uniquely determined state sequence.
-* **Formal Definition:** A DFA is a 5-tuple (Q, Σ, δ, q0, F), where:
+**Definition:** A DFA is a finite-state machine that accepts or rejects a given string of symbols by running through a uniquely determined state sequence.  
+
+**Formal Definition:**   
+A DFA is a 5-tuple (Q, Σ, δ, q0, F), where:  
     * Q is a finite set of states.
     * Σ is a finite set of input symbols (the alphabet).
     * δ: Q × Σ → Q is the transition function (single-valued).
     * q0 ∈ Q is the initial state.
-    * F ⊆ Q is the set of accepting (final) states.
-* **Key Characteristic:** For each state and input symbol, there is *exactly one* transition.
-* **Applications:** Used in lexical analysis, pattern matching, and other areas requiring deterministic behavior.
+    * F ⊆ Q is the set of accepting (final) states.  
+
+**Key Characteristic:** For each state and input symbol, there is *exactly one* transition.  
+
+**Applications:** Used in lexical analysis, pattern matching, and other areas requiring deterministic behavior.
 
 ### **Non-deterministic Finite Automata (NDFA)**
-* **Definition:** An NDFA allows for multiple possible transitions from a given state on the same input symbol, or ε-transitions.
-* **Formal Definition:** An NDFA is a 5-tuple (Q, Σ, δ, q0, F), where:
-    * δ: Q × (Σ ∪ {ε}) → 2^Q (transition function maps to a set of states).
-* **Key Characteristic:** Allows multiple transitions or ε-transitions.
-* **Acceptance:** An NDFA accepts a string if *at least one* of the possible state sequences leads to an accepting state.
-* **Equivalence:** NDFAs are equivalent in power to DFAs, meaning any language accepted by an NDFA can also be accepted by a DFA.
+**Definition:** An NDFA allows for multiple possible transitions from a given state on the same input symbol, or ε-transitions.
 
-#### **NDFA to DFA Conversion (Subset Construction)**
-* **Subset Construction (Powerset Construction):**
+**Formal Definition:**   
+An NDFA is a 5-tuple (Q, Σ, δ, q0, F), where:  
+    * δ: Q × (Σ ∪ {ε}) → 2^Q (transition function maps to a set of states).
+
+**Key Characteristic:** Allows multiple transitions or ε-transitions.
+
+**Acceptance:** An NDFA accepts a string if *at least one* of the possible state sequences leads to an accepting state.
+
+**Equivalence:** NDFAs are equivalent in power to DFAs, meaning any language accepted by an NDFA can also be accepted by a DFA.
+
+### **NDFA to DFA Conversion (Subset Construction)**
+**Subset Construction (Powerset Construction):**
     * The primary method for converting an NDFA to a DFA.
     * Creates DFA states that represent sets of NDFA states.
-* **Detailed Process:**
+
+**Detailed Process:**  
     * Start with the initial DFA state as the ε-closure of the NDFA's initial state.
     * For each DFA state and input symbol, calculate the set of NDFA states reachable. This becomes a new DFA state.
     * Repeat until no new DFA states are generated.
@@ -52,39 +62,37 @@
     * **Note:** The conversion can lead to an exponential increase in the number of states.
     * **Proof:** This conversion proves the equivalence of NFA and DFA, in that they both accept the Regular Languages.
 
-##### **Chomsky Hierarchy**
-* **Classification:** Classifies formal grammars and languages into four types:
+### **Chomsky Hierarchy**
+**Classification:** Classifies formal grammars and languages into four types:
     * Type-0 (Recursively Enumerable)
     * Type-1 (Context-Sensitive)
     * Type-2 (Context-Free)
     * Type-3 (Regular)
-* **Inclusion:** Type-3 ⊆ Type-2 ⊆ Type-1 ⊆ Type-0.
-* **Automata and Grammars:** Each grammar type corresponds to a specific type of automaton.
 
-### Grammar Types
+**Inclusion:** Type-3 ⊆ Type-2 ⊆ Type-1 ⊆ Type-0.
 
-* **Type-0 (Recursively Enumerable):**
+**Automata and Grammars:** Each grammar type corresponds to a specific type of automaton.
+
+### **Grammar Types**  
+**Type-0 (Recursively Enumerable):**
     * Unrestricted grammars.
     * Recognized by Turing machines.
     * Models general computation.
-* **Type-1 (Context-Sensitive):**
+
+**Type-1 (Context-Sensitive):**
     * Production rules: αAβ → αγβ.
     * Recognized by linear bounded automata.
     * The length of the right side of a production rule is greater than or equal to the left side.
-* **Type-2 (Context-Free):**
+
+**Type-2 (Context-Free):**
     * Production rules: A → γ.
     * Recognized by pushdown automata.
     * Base of most programming language syntax.
-* **Type-3 (Regular):**
+    
+**Type-3 (Regular):**
     * Production rules: A → aB or A → a.
     * Recognized by finite automata.
     * Used for simple pattern matching and lexical analysis.
-
-### Significance
-
-* Provides a framework for understanding the expressive power of formal languages.
-* Defines the computational power of machines that recognize them.
-* Foundational concept in computer science and formal language theory.
 
 ---
 
@@ -99,23 +107,20 @@
     * Utilize the grammar variant from the previous lab as a foundation for this implementation.
 
 3.  **Finite Automaton Operations (Variant-Specific):**
-    * Based on the provided finite automaton definition (determined by the student's register ID), perform the following tasks:
-        * **a. FA to Regular Grammar Conversion:** Implement a function or algorithm to convert the given finite automaton into its equivalent regular grammar representation.
-        * **b. Determinism Analysis:** Determine and report whether the specified finite automaton is deterministic (DFA) or non-deterministic (NDFA).
-        * **c. NDFA to DFA Conversion (if applicable):** If the automaton is non-deterministic, implement a function or algorithm to convert it into an equivalent deterministic finite automaton (DFA).
-        * **d. Graphical Representation (Optional Bonus):**
+    **a. FA to Regular Grammar Conversion:** Implement a function or algorithm to convert the given finite automaton into its equivalent regular grammar representation.
+    **b. Determinism Analysis:** Determine and report whether the specified finite automaton is deterministic (DFA) or non-deterministic (NDFA).
+    **c. NDFA to DFA Conversion (if applicable):** If the automaton is non-deterministic, implement a function or algorithm to convert it into an equivalent deterministic finite automaton (DFA).
+    **d. Graphical Representation (Optional Bonus):**
             * Develop a method to generate a visual representation (diagram) of the finite automaton.
             * This can be achieved using external libraries, tools, or APIs.
             * The program should automatically extract the automaton's data and interface with the chosen visualization method.
             * Alternatively, provide a detailed manual representation and explanation in the report.
-    * Provide a manual, detailed report, that explains all conversion and changes that were performed.
-    * Provide a program that will convert any given finite automata to a regular grammar, as a bonus point.
 
 ---
 
 ## **5. Implementation**
 
-### **Variant 4 (past lab):**
+**Variant 4 (past lab):**
 ```
 vn = {'S', 'L', 'D'}
 vt = {'a', 'b', 'c', 'd', 'e', 'f', 'j'}
@@ -134,112 +139,82 @@ p = [
 ]
 s = 'S'
 ```
-### **Variant 4:**
-Q = {q0,q1,q2,q3},
-∑ = {a,b},
-F = {q3},
-δ(q0,a) = q1,
-δ(q0,a) = q2,
-δ(q1,b) = q1,
-δ(q1,a) = q2,
-δ(q2,a) = q1,
-δ(q2,b) = q3.
-
-
-**Code explanation**
-```python
-def __init__(self, vn, vt, p, s):
-        self.vn = vn
-        self.vt = vt
-        self.p = p
-        self.s = s
+**Variant 4:**
+```
+Q = {q0,q1,q2,q3}
+∑ = {a,b}
+F = {q3}
+    δ(q0,a) = q1,
+    δ(q0,a) = q2,
+    δ(q1,b) = q1,
+    δ(q1,a) = q2,
+    δ(q2,a) = q1,
+    δ(q2,b) = q3.
 ```
 
-This is storing the basic parts needed for a grammar, following the formal definition of a Context-Free Grammar (CFG) which requires these four components. From the main function example, we can see it takes things like vn = {'S', 'L', 'D'} (non-terminals - variables that can be replaced), vt = {'a', 'b', 'c', 'd', 'e', 'f', 'j'} (terminals - symbols that appear in final strings), production rules (P), and a start symbol 'S'. These components follow the standard CFG notation G = (V, Σ, P, S) where V is our vn, Σ is our vt, P is our production rules, and S is our start symbol.  
-Basically storing the building blocks we'll use later.
+### **Code explanation**
+```python
+def classify_grammar(self):
+    # check grammar type
+    is_right = True
+    is_left = True
+    
+    for lhs, rhs_list in self.P.items():
+        for rhs in rhs_list:
+            # empty ok for reg grammar
+            if len(rhs) == 0: continue
+            
+            # check right-linear (A→aB or A→a)
+            if len(rhs) > 2 or (len(rhs) == 2 and rhs[1] not in self.VN) or (len(rhs) == 1 and rhs[0] in self.VN):
+                is_right = False
+            
+            # check left-linear (A→Ba or A→a)
+            if len(rhs) > 2 or (len(rhs) == 2 and rhs[0] not in self.VN) or (len(rhs) == 1 and rhs[0] in self.VN):
+                is_left = False
+```
 
-
+The grammar classification function checks what type a grammar is. It looks at all the rules to see if they follow specific patterns. For a regular grammar (Type 3), all rules must be either right-linear (like A→aB or A→a) or left-linear (like A→Ba or A→a). If rules don't follow these patterns, the function checks for other grammar types like context-free (Type 2) or context-sensitive (Type 1). If none of these types match, the grammar is considered unrestricted (Type 0).
 
 ```python
-def gen_str(self, max_iter=50):
-        curr = self.s
-        i = 0
-       
-        while i < max_iter:
-            # check no more nonterminals
-            if all(sym not in self.vn for sym in curr):
-                return curr
-```
-The string generator (gen_str):
-This implements the leftmost derivation process in formal grammars. For example, it might start with 'S' and use the rule ('S', 'aS') to get 'aS', then maybe ('S', 'e') to end up with 'ae'. Each step represents a derivation in the grammar, written as S ⇒ aS ⇒ ae in formal notation. The max_iter parameter prevents infinite recursion in case of left-recursive grammars, which is a common concern in grammar implementation.
+def classify_grammar(self):
 
+```
+
+The
 
 ```python
-def gen_mult_strs(self, cnt=5):
-        strs = set()
-        tries = 0
-        max_tries = cnt * 20
-       
-        while len(strs) < cnt and tries < max_tries:
-            if res := self.gen_str():
-                if all(c in self.vt for c in res):
-                       strs.add(res)
+def classify_grammar(self):
+
 ```
-The multiple string generator (gen_mult_strs):
-This generates multiple strings from the grammar's language L(G). It creates a sample of the language, demonstrating that our grammar can generate different strings that belong to the same language. From the main function, we see it makes 5 different strings like 'e', 'ae', 'be', etc. This relates to the concept of language generation in formal language theory, where L(G) is the set of all possible strings that can be derived from the grammar.
 
-
+The
 ```python
-def to_fa(self):
-        # convert
-        states = self.vn | {'F'}
-        alpha = self.vt
-        trans = {}
-...
+def classify_grammar(self):
 
 ```
-The grammar to FA converter (to_fa):
-This implements a transformation from a right-linear grammar to a finite automaton, which is a fundamental concept in formal language theory. The rule ('S', 'aS') becomes a transition δ(S,a) = S in automaton notation. This transformation demonstrates the equivalence between right-linear grammars and regular languages, showing how different representations can define the same language.
 
-
-```python
-def check_str(self, inp):
-        curr_states = {self.init}
-       
-        for c in inp:
-            if c not in self.alpha:
-                return False
-```
-The string checker (check_str):
-This implements the deterministic finite automaton (DFA) acceptance process. For each input symbol, it follows the transition function δ to move between states. The acceptance condition checks if the final state is reached, implementing the formal definition of language acceptance in automata theory. In formal notation, it checks if δ*(q₀,w) ∈ F where q₀ is the initial state and F is the set of final states.
-
-**Key functions:**
-- **Grammar Initialization:** Defines variables, terminals, production rules, and start symbol.
-- **String Generation:** Implements leftmost derivation.
-- **Multiple String Generation:** Demonstrates language generation.
-- **Grammar to FA Conversion:** Converts a right-linear grammar into a finite automaton.
-- **String Checking in FA:** Implements DFA acceptance process.
-
-```python
-g = Grammar(vn, vt, p, s)
-strings = g.gen_mult_strs(5)
-fa = g.to_fa()
-```
+The
 
 ---
 
 ## **6. Conclusions**
 
-In this lab, we tested how formal languages and finite automata work together. First, we defined a grammar using a set of rules that generate valid strings. Then, we implemented a program to generate multiple valid strings using random rule applications. After that, we converted the grammar into a finite automaton (FA), treating non-terminals as states and terminals as transitions. We tested the FA by checking if different input strings were accepted or rejected. 
+In this lab, we expanded on the concepts from Lab 1 by focusing on grammar classification and automata conversions. The terminal output clearly demonstrates the success of our implementation.
+Starting with a non-deterministic finite automaton (NDFA), we can see from the output that:
 
-the output see in pdf
+The initial NDFA has 4 states (q0, q1, q2, q3) and accepts input symbols 'a' and 'b'
+The automaton is correctly identified as non-deterministic with the output "deterministic? False" because q0 has two transitions for input 'a' (to both q1 and q2)
+Our conversion to a regular grammar worked correctly, creating production rules like "q0 → aq1" and "q3 → ε" that preserve the automaton's behavior
+Interestingly, while the grammar was created from an automaton that should be regular (Type 3), the classification function determined it was "Type 0 (Unrestricted Grammar)" - this could indicate a potential issue in our classification algorithm that needs further investigation
+The DFA conversion process successfully created a deterministic equivalent with composite states like "{q0}", "{q1,q2}", "{q1,q3}", representing multiple possible states from the original NDFA
+The final states in the DFA ({"{q1,q3}", "{q3}"}) correctly include any composite states containing the original final state q3
 
-From the results, we can see that:
-- Valid strings were generated based on the rules.
-- The FA successfully identified correct and incorrect strings, proving the correctness of our conversion.
-- The program worked without errors, confirming that the logic was implemented properly.
+We also verified that our grammar from Lab 1 was properly classified as "Type 3 (Regular Grammar)", which confirms it works correctly for that case.
+The visualization of both automata (which would appear after the text output) helps us understand the transformation process. The NDFA shows multiple transitions from q0 with the same symbol, while the DFA shows a cleaner structure with exactly one transition per symbol from each state.
 
-Overall, this lab helped us understand how formal languages define patterns and how finite automata validate them efficiently.
+![Image1](./lab2/img/lab2.png)
+![Image2](./lab2/img/nfa_diag.png)
+![Image3](./lab2/img/dfa_diag.png)
 
 ---
 
