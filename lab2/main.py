@@ -10,57 +10,48 @@ class Grammar:
         self.S = s    # start
     
     def classify_grammar(self):
-        # check grammar type
-        is_right = True
-        is_left = True
-        
+        is_regular = True
+        is_right_linear = True
+        is_left_linear = True
+        is_context_free = True
+        is_context_sensitive = True
+
         for lhs, rhs_list in self.P.items():
+            if len(lhs) != 2 or lhs not in self.VN:
+                is_context_free = False
+            
             for rhs in rhs_list:
-                # empty ok for reg grammar
-                if len(rhs) == 0: continue
+                if rhs == "":
+                    continue
                 
-                # check right-linear (A→aB or A→a)
-                if len(rhs) > 2 or (len(rhs) == 2 and rhs[1] not in self.VN) or (len(rhs) == 1 and rhs[0] in self.VN):
-                    is_right = False
-                
-                # check left-linear (A→Ba or A→a)
-                if len(rhs) > 2 or (len(rhs) == 2 and rhs[0] not in self.VN) or (len(rhs) == 1 and rhs[0] in self.VN):
-                    is_left = False
-        
-        if is_right or is_left:
-            return "Type 3 (Regular Grammar)"
-        # check type 2 (context-free)
-        is_cf = True
-        for lhs, rhs_list in self.P.items():
-            if len(lhs) != 1 or lhs not in self.VN:
-                is_cf = False
-                break
-        
-        if is_cf:
-            return "Type 2 (Context-Free Grammar)"
-        
-        # check type 1 (context-sensitive)
-        is_cs = True
-        for lhs, rhs_list in self.P.items():
-            for rhs in rhs_list:
-                if len(rhs) == 0 and lhs == self.S:
-                    s_on_rhs = False
-                    for _, prods in self.P.items():
-                        for prod in prods:
-                            if self.S in prod:
-                                s_on_rhs = True
-                                break
-                        if s_on_rhs: break
-                    if not s_on_rhs: continue
-                
+                if len(rhs) > 2:
+                    is_right_linear = False
+                    is_left_linear = False
+                elif len(rhs) == 2:
+                    if rhs[0] in self.VN and rhs[1] in self.VT:
+                        is_right_linear = False
+                    if rhs[0] in self.VT and rhs[1] in self.VN:
+                        is_left_linear = False
+                    if rhs[0] in self.VN and rhs[1] in self.VN:
+                        is_right_linear = False
+                        is_left_linear = False
+                elif len(rhs) == 1:
+                    if rhs[0] in self.VN:
+                        is_right_linear = False
+                        is_left_linear = False
+                    
                 if len(lhs) > len(rhs):
-                    is_cs = False
-                    break
-            if not is_cs: break
+                    is_context_sensitive = False
         
-        if is_cs:
+        if is_right_linear or is_left_linear:
+            return "Type 3 (Regular Grammar)"
+        elif is_context_free:
+            return "Type 2 (Context-Free Grammar)"
+        elif is_context_sensitive:
             return "Type 1 (Context-Sensitive Grammar)"
-        return "Type 0 (Unrestricted Grammar)"
+        else:
+            return "Type 0 (Unrestricted Grammar)"
+
 
 class FiniteAutomaton:
     def __init__(self, q, sigma, delta, q0, f):
@@ -160,13 +151,10 @@ class FiniteAutomaton:
         return "{" + ",".join(sorted(states)) + "}"
     
     def visualize_matplotlib(self, title="FA"):
-        # viz with matplotlib
         G = nx.DiGraph()
-        
         # add nodes
         G.add_nodes_from(self.Q)
         
-        # add edges
         edge_labels = {}
         for state in self.Q:
             if state not in self.Delta: continue
@@ -181,14 +169,9 @@ class FiniteAutomaton:
                         edge_labels[(state, next_state)] = sym
                         G.add_edge(state, next_state)
         
-        # create fig
         plt.figure(figsize=(10, 8))
         plt.title(title)
-        
-        # positions
         pos = nx.spring_layout(G, seed=42)
-        
-        # draw nodes
         reg_states = [s for s in self.Q if s not in self.F]
         nx.draw_networkx_nodes(G, pos, nodelist=reg_states, node_color='lightblue', 
                               node_size=700, alpha=0.8)
@@ -201,22 +184,16 @@ class FiniteAutomaton:
                 nx.draw_networkx_nodes(G, pos, nodelist=[s], node_color='white', 
                                      node_size=600, alpha=0.8)
         
-        # draw edges
         nx.draw_networkx_edges(G, pos, arrowsize=20, arrowstyle='->', connectionstyle='arc3,rad=0.1')
-        
-        # edge labels
         nx.draw_networkx_edge_labels(G, pos, edge_labels=edge_labels, font_size=10)
-        
-        # node labels
         nx.draw_networkx_labels(G, pos, font_size=12, font_weight='bold')
         
-        # mark initial
+        # initial
         x0, y0 = pos[self.q0]
         plt.annotate('', xy=(x0, y0), xytext=(x0-0.3, y0),
                    arrowprops=dict(arrowstyle='->', lw=2, color='black'))
         plt.text(x0-0.35, y0, '', fontsize=12)
         
-        # legend
         reg_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='lightblue', 
                              markersize=15, label='regular')
         final_patch = plt.Line2D([0], [0], marker='o', color='w', markerfacecolor='lightgreen', 
