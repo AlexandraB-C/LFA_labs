@@ -257,9 +257,9 @@ This function implements the subset construction algorithm to convert an NDFA to
 
 This lab focused on finite automata, grammar classification, and the conversion of an NDFA to a DFA. We started with a given automaton and analyzed its properties, determining that it was non-deterministic due to multiple transitions on the same input from a single state. The DFA conversion process successfully produced an equivalent deterministic automaton, correctly grouping NDFA states while preserving language recognition. The final states were properly assigned, ensuring correctness in acceptance conditions.
 
-The regular grammar equivalent was also generated without issues. However, an unexpected result appeared in the classification step—the grammar was identified as Type 0 (Unrestricted Grammar) instead of Type 3 (Regular Grammar). Given that the automaton itself is regular, its grammar should be as well. This suggests a potential issue in the classification function, which may require further refinement to correctly distinguish regular grammar structures.
+The regular grammar equivalent was also generated without issues. However, in a previous atempt, an unexpected result appeared in the classification step—the grammar was identified as Type 0 instead of Type 2. Given that the automaton itself is context-free, its grammar should be as well. This suggests a potential issue in the classification function, which may require further refinement to correctly distinguish regular grammar structures, that is what i would say if i left the code as it was, duh.
 
-Comparing this with Lab 1, the previous grammar was correctly classified as Type 3, indicating that the function generally works but may need adjustments for certain cases. Despite this minor inconsistency, the core objectives of the lab were achieved, and the conversion process demonstrated the expected theoretical properties.
+Comparing this with Lab 1, the previous grammar was correctly classified as Type 3, indicating that the function generally works and does not need adjustments for certain cases. Despite this minor inconsistency, the core objectives of the lab were achieved, and the conversion process demonstrated the expected theoretical properties.
 
 ---
 
