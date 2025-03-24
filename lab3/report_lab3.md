@@ -136,10 +136,8 @@ class Lexer:
 ```
 
 This sets up the lexer with:
-- `text`: The input to process
-- `pos`: Where we are in the input (starting at 0)
-- `current_char`: The character we're currently looking at
-- Lists of functions and operators the lexer can recognize
+`text`: The input to process, `pos`: Where we are in the input (starting at 0), `current_char`: The character we're currently looking at.  
+Lists of functions and operators the lexer can recognize
 
 The lexer works like a cursor moving through the text, one character at a time.
 
@@ -164,9 +162,7 @@ def skip_whitespace(self):
 ```
 
 These are simple helper methods:
-- `error()`: Shows an error message when something goes wrong
-- `advance()`: Moves to the next character in the input
-- `skip_whitespace()`: Skips over spaces, tabs, etc.
+`error()`: Shows an error message when something goes wrong. `advance()`: Moves to the next character in the input, `skip_whitespace()`: Skips over spaces, tabs, etc.
 
 The `advance()` method is super important because it's how the lexer moves through the input text. When it gets to the end, it sets `current_char` to `None` to show there's nothing left to read.
 
@@ -205,10 +201,7 @@ def number(self):
 ```
 
 This method reads numbers from the input:
-1. It collects digits and at most one decimal point
-2. It keeps track of whether it's seen a decimal point already
-3. It handles special cases like just a decimal point with no digits
-4. It creates a NUMBER token with either an integer or float value
+It collects digits and at most one decimal point, then it keeps track of whether it's seen a decimal point already. So, handles special cases like just a decimal point with no digits, and it creates a NUMBER token with either an integer or float value
 
 So it can handle numbers like "42" or "3.14" and catch errors like "3..14".
 
@@ -280,15 +273,13 @@ def get_next_token(self):
 ```
 
 This is the main method that identifies and returns the next token:
-1. It skips any whitespace
-2. Based on the current character, it decides what kind of token to create:
+It skips any whitespace, based on the current character, it decides what kind of token to create:
    - If it's a digit or decimal point, it calls `number()`
    - If it's a letter or underscore, it calls `identifier()`
    - If it's an operator, it creates an OPERATOR token
    - If it's a parenthesis, it creates an LPAREN or RPAREN token
-   - If it's an equals sign, it creates an ASSIGNMENT token
-3. If nothing matches, it reports an error
-4. If there's nothing left to read, it returns an EOF token
+   - If it's an equals sign, it creates an ASSIGNMENT token  
+If nothing matches, it reports an error, and if there's nothing left to read, it returns an EOF token
 
 This is where the lexer decides what kind of token it's looking at based on the first character.
 
