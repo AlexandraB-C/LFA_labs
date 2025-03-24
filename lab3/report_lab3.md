@@ -304,12 +304,7 @@ def tokenize(self):
         return tokens
 ```
 
-This method tokenizes a whole input string:
-1. It creates an empty list for tokens
-2. It keeps calling `get_next_token()` until it gets an EOF token
-3. It adds all the tokens to the list
-4. If there's an error, it prints a message and returns an empty list
-5. Otherwise, it returns the list of tokens
+This method tokenizes a whole input string, it creates an empty list for tokens, keeps calling `get_next_token()` until it gets an EOF token, adds all the tokens to the list, if there's an error, it prints a message and returns an empty list, otherwise, it returns the list of tokens.
 
 This makes it easy to tokenize a whole string at once instead of having to get tokens one by one.
 
