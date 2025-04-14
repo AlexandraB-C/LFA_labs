@@ -1,22 +1,4 @@
-# Report Laboratory Work 3
-
-## MINISTERUL EDUCAȚIEI, CULTURII ȘI CERCETĂRII
-### AL REPUBLICII MOLDOVA
-#### Universitatea Tehnică a Moldovei  
-**Facultatea Calculatoare, Informatică și Microelectronică**  
-**Departamentul Inginerie Software și Automatică**  
-
-### **ALEXANDRA BUJOR-COBILI, FAF-232**  
-#### **Report - Laboratory work n.3**  
-#### **Lexer & Scanner Implementation**  
-
-**Checked by:**  
-*Cretu Dumitru, university assistant*  
-*FCIM, UTM*  
-
-**Chișinău – 2025**  
-
----
+# Report Laboratory Work 4
 
 ## **1. Theory**
 
