@@ -4,9 +4,7 @@ def re(regex):
     i = 0
     
     while i < len(regex):
-        # check for group
         if regex[i] == '(':
-            # find matching ')'
             depth = 1
             j = i + 1
             while depth > 0 and j < len(regex):
@@ -18,13 +16,11 @@ def re(regex):
             
             # found closing parenthesis
             if depth == 0:
-                # get options
                 options = regex[i+1:j-1].split('|')
                 
                 # check for quantifiers
                 if j < len(regex) and regex[j] in '{*+?':
                     if regex[j] == '{':
-                        # need to find the closing brace
                         k = j + 1
                         while k < len(regex) and regex[k] != '}':
                             k += 1
@@ -34,29 +30,23 @@ def re(regex):
                             tokens.append(('group', options, quant))
                             i = k + 1
                         else:
-                            # no closing brace found
                             tokens.append(('group', options, ''))
                             i = j
                     else:
-                        # simple quantifier like * + ?
                         tokens.append(('group', options, regex[j]))
                         i = j + 1
                 else:
-                    # no quantifier
                     tokens.append(('group', options, ''))
                     i = j - 1
             else:
-                # unmatched parenthesis, treat as literal
+                # unmatched parnth, treat as literal
                 tokens.append(('char', regex[i], ''))
-        
-        # handle regular characters
         elif regex[i].isalnum():
             char = regex[i]
             
             # check if followed by quantifier
             if i + 1 < len(regex) and regex[i+1] in '{*+?':
                 if regex[i+1] == '{':
-                    # find closing brace
                     j = i + 2
                     while j < len(regex) and regex[j] != '}':
                         j += 1
@@ -72,46 +62,43 @@ def re(regex):
                     i += 1
             else:
                 tokens.append(('char', char, ''))
-        
         i += 1
-    
     return tokens
 
-# apply quantifier to text
+# apply quantifier
 def apply_quant(text, quant, max=5):
-    if not quant:  # no quantifier
+    if not quant:
         return text
     
-    if quant == '*':  # zero or more
+    if quant == '*':
         n = random.randint(0, max)
         return text * n
     
-    elif quant == '+':  # one or more
+    elif quant == '+':
         n = random.randint(1, max)
         return text * n
     
-    elif quant == '?':  # zero or one
+    elif quant == '?':
         return text if random.choice([True, False]) else ""
     
     elif quant.startswith('{'):  # {n} or {n,m}
         inside = quant[1:-1]
         if ',' in inside:
             parts = inside.split(',')
-            if parts[1]:  # {n,m}
+            if parts[1]:
                 min_n = int(parts[0])
                 max_n = min(int(parts[1]), max)
             else:  # {n,}
                 min_n = int(parts[0])
                 max_n = max
             n = random.randint(min_n, max_n)
-        else:  # {n}
+        else:
             n = int(inside)
         
         return text * n
     
-    return text  # shouldn't get here
+    return text
 
-# generate a string from tokens
 def gen_string(tokens, max=5):
     result = ""
     
@@ -120,13 +107,11 @@ def gen_string(tokens, max=5):
             result += apply_quant(val, quant, max)
         
         elif type == 'group':
-            # pick one of the options randomly
             choice = random.choice(val)
             result += apply_quant(choice, quant, max)
     
     return result
 
-# trace the generation
 def trace_gen(regex, max=5):
     tokens = re(regex)
     steps = []
@@ -150,35 +135,20 @@ regex1 = "(S|T)(U|V)W*Y+24"
 regex2 = "L(M|N)O{3}P*Q(2|3)"
 regex3 = "R*S(T|U|V)W(X|Y|Z){2}"
 
-print("RE 1:", regex1)
-for i in range(5):
-    tokens = re(regex1)
-    s = gen_string(tokens)
-    print(f"  {s}")
+def print_regex_examples(regex, num_examples=5):
+    print(f"RE: {regex}")
+    
+    for i in range(num_examples):
+        tokens = re(regex)
+        s = gen_string(tokens)
+        print(f"  {s}")
+    
+    print("\nExp generation steps:")
+    steps, res = trace_gen(regex)
+    for step in steps:
+        print(step)
+    print()
 
-print("\nExp generation steps:")
-steps1, res1 = trace_gen(regex1)
-for step in steps1:
-    print(step)
-
-print("\nRE 2:", regex2)
-for i in range(5):
-    tokens = re(regex2)
-    s = gen_string(tokens)
-    print(f"  {s}")
-
-print("\nExp generation steps:")
-steps2, res2 = trace_gen(regex2)
-for step in steps2:
-    print(step)
-
-print("\nRE 3:", regex3)
-for i in range(5):
-    tokens = re(regex3)
-    s = gen_string(tokens)
-    print(f"  {s}")
-
-print("\nExp generation steps:")
-steps3, res3 = trace_gen(regex3)
-for step in steps3:
-    print(step)
+print_regex_examples(regex1)
+print_regex_examples(regex2)
+print_regex_examples(regex3)

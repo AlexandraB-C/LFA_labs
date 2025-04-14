@@ -1,337 +1,228 @@
 # Report Laboratory Work 4
 
+## MINISTERUL EDUCAȚIEI, CULTURII ȘI CERCETĂRII
+### AL REPUBLICII MOLDOVA
+#### Universitatea Tehnică a Moldovei  
+**Facultatea Calculatoare, Informatică și Microelectronică**  
+**Departamentul Inginerie Software și Automatică**  
+
+### **ALEXANDRA BUJOR-COBILI, FAF-232**  
+#### **Report - Laboratory work n.4**
+#### **Regular Expressions**  
+
+**Checked by:**  
+*Cretu Dumitru, university assistant*  
+*FCIM, UTM*  
+
+**Chișinău – 2025**  
+
+---
+
 ## **1. Theory**
 
-### **Lexical Analysis:**
-**Definition:** Lexical analysis, also known as scanning or tokenization, is the initial phase in the compilation or interpretation of a programming language, markup language, or any structured text. Its primary role is to take a stream of characters (the source code) and convert it into a stream of meaningful units called tokens. This process is crucial because it simplifies the subsequent stages of parsing and semantic analysis, which would be extremely complex if they had to deal with raw character streams.
+### **Regular Expression:**
+**Definition:** A regular expression is a sequence of characters that defines a search pattern. It is like a rulebook that describes how a string should be formed. The most basic example is just a letter. For example, `a` matches the letter "a". But regular expressions become powerful when combined with special symbols:
 
-### **Key Concepts:** 
-Lexical analysis is about breaking down raw input text into meaningful units called tokens.  
-1. Tokens:  
-- Tokens are the output of the lexer. They represent categorized lexemes, providing essential information for the parser.
-- Each token typically includes:
-    - Type: The category of the token (e.g., IDENTIFIER, NUMBER, OPERATOR).
-    - Value (Lexeme): The actual sequence of characters that formed the token (e.g., "x", "10", "+").
-    - Position: The location of the token in the input stream (e.g., character index).
+- `(A|B)` means "A or B"
+- `*` means repeat 0 or more times
+- `+` means repeat at least once
+- `?` means 0 or 1 time
+- `{n}` means exactly n times
+- `{n,m}` means at least n and at most m times
 
-2. Lexeme:  
-- Lexemes are the raw character sequences that match a token's pattern.
-- For example, "123", "var_name", and "+" are lexemes.
+These elements can be used together to build complex patterns. For example, `(S|T)(U|V)W*Y+24` means: pick "S" or "T", then "U" or "V", then zero or more "W", then one or more "Y", and finally the digits "2" and "4".
 
-3. Pattern:  
-A rule describing the form of lexemes for a token (e.g., "one or more digits" for numbers).
+### **Key Concepts:**  
+1. **Parse** the regular expression:  
+   Go through each character and find groups, quantifiers, and individual symbols. Groups are detected by looking for parentheses, and inside the group, the options are separated by "|". The program must also find the quantifier that comes after a group or character.
 
-### **Common Challenges in Lexical Analysis:**
+2. **Build Tokens**:  
+   After parsing, each part of the expression is stored as a token. A token can be a single character or a group with options. Each token also remembers if it has a quantifier like `*`, `+`, `{3}`, etc.
 
-1. Ambiguity Resolution:
-   - Resolving cases where character sequences could match multiple token patterns
-   - For instance, differentiating between identifiers and keywords
+3. **Generate the Result**:  
+   For each token, the program decides how many times to repeat the value (based on the quantifier). For groups, it randomly picks one of the options. For characters, it just uses the value. These are combined step by step to form the final string.
 
-2. Error Handling:
-   - Detecting and reporting lexical errors like invalid characters or malformed tokens
-   - Implementing recovery strategies to continue analysis after encountering errors
+4. **Trace Each Step**:  
+   The program also shows each decision it made. This is helpful for learning. You can see which character was picked, how many times it was added, and how the string grows after each step.
 
-3. Context Sensitivity:
-   - Handling cases where the interpretation of a character sequence depends on context
-   - Pure lexers are typically context-free, but some languages require limited context sensitivity
 
-4. Efficiency Considerations:
-   - Optimizing performance for processing large input files
-   - Balancing memory usage with processing speed
+### **Variant 4:**
 
+(S|T)(U|V)W*Y+24  
+L(M|N)O{3}P*Q(2|3)  
+R*S(T|U|V)W(X|Y|Z){2}  
+
+Each of these includes character sequences, groups with alternatives, and quantifiers. The program should be able to produce different results each time based on random choices but all results must be valid according to the original expression.
+
+Let’s take: 
+```
+(S|T)(U|V)W*Y+24
+```
+
+This means:
+- Start with "S" or "T"
+- Then "U" or "V"
+- Then 0 or more "W"
+- Then 1 or more "Y"
+- Then the digits "2" and "4"
+
+A possible output could be:
+```
+SUWWYY24
+```
+
+Basicaly we choose "S" from group (S|T), then choose "U" from group (U|V). Repeat "W" two times. Repeat "Y" two times. At last add "2" and add "4".
+Another valid output could be `TVY24`, where "W" is not repeated and "Y" appears once.
 
 ---
 
 ## **2. Objectives**
 
-1. Understand what lexical analysis [1] is.
-2. Get familiar with the inner workings of a lexer/scanner/tokenizer.
-3. Implement a sample lexer and show how it works. 
+1. Write and cover what regular expressions are, what they are used for;
+
+2. For the variant do the following:
+
+    a. Write a code that will generate valid combinations of symbols conform given regular expressions (examples will be shown). Be careful that idea is to interpret the given regular expressions dinamycally, not to hardcode the way it will generate valid strings. You give a set of regexes as input and get valid word as an output
+
+    b. In case you have an example, where symbol may be written undefined number of times, take a limit of 5 times (to evade generation of extremely long combinations);
+
+    c. **Bonus point**: write a function that will show sequence of processing regular expression (like, what you do first, second and so on)
+
 
 ---
 
 ## **3. Implementation**
 
 ### **Code explanation**  
-#### **3.1. Token Types**
 ```python
-from enum import Enum, auto
-
-class TokenType(Enum):
-    NUMBER = auto()
-    IDENTIFIER = auto()
-    OPERATOR = auto()
-    FUNCTION = auto()
-    LPAREN = auto()
-    RPAREN = auto()
-    ASSIGNMENT = auto()
-    EOF = auto()
+    while i < len(regex):
+        if regex[i] == '(':
+            depth = 1
+            j = i + 1
+            while depth > 0 and j < len(regex):
+                if regex[j] == '(':
+                    depth += 1
+                elif regex[j] == ')':
+                    depth -= 1
+                j += 1
 ```
-
-This code defines an enumeration that categorizes all possible token types our lexer can recognize:
-- `NUMBER`: Represents numeric values (integers or floating-point)
-- `IDENTIFIER`: Represents variable names or other identifiers
-- `OPERATOR`: Represents mathematical operators (+, -, *, /, ^)
-- `FUNCTION`: Represents built-in functions (sin, cos)
-- `LPAREN` and `RPAREN`: Represent left and right parentheses
-- `ASSIGNMENT`: Represents the assignment operator (=)
-- `EOF`: Represents the end of the input  
-
-Using `Enum` makes the code cleaner than just using strings. The `auto()` function gives each type a unique number automatically.
-
-#### **3.2. Token Class**
+The loop goes through every character in the regex. If it sees `(`, it knows a group is starting. It continues to search until it finds the closing `)` and then splits the group by `|` to find all the options.
 
 ```python
-class Token:
-    def __init__(self, type, value, position):
-        self.type = type
-        self.value = value
-        self.position = position
-    
-    def __str__(self):
-        return f"Token({self.type}, '{self.value}', pos={self.position})"
-    
-    def __repr__(self):
-        return self.__str__()
+            if depth == 0:
+                options = regex[i+1:j-1].split('|')
+                if j < len(regex) and regex[j] in '{*+?':
+                    if regex[j] == '{':
+                        k = j + 1
+                        while k < len(regex) and regex[k] != '}':
+                            k += 1
+                        if k < len(regex):
+                            quant = regex[j:k+1]
+                            tokens.append(('group', options, quant))
+                            i = k + 1
+                        else:
+                            tokens.append(('group', options, ''))
+                            i = j
+                    else:
+                        tokens.append(('group', options, regex[j]))
+                        i = j + 1
+                else:
+                    tokens.append(('group', options, ''))
+                    i = j - 1
 ```
-
-This class is like a container for token information:
-- `type`: What kind of token it is
-- `value`: The actual text of the token
-- `position`: Where the token starts in the input
-
-The `__str__` and `__repr__` methods just make tokens print nicely when I debug, showing something like `Token(TokenType.NUMBER, '42', pos=0)`.
-
-#### **3.3. Lexer Setup**
-```python
-class Lexer:
-    def __init__(self, text):
-        self.text = text
-        self.pos = 0
-        self.current_char = self.text[self.pos] if len(self.text) > 0 else None
-        
-        # supported functions
-        self.functions = ['sin', 'cos']
-        
-        # supported operators
-        self.operators = ['+', '-', '*', '/', '^']
-```
-
-This sets up the lexer with:
-`text`: The input to process, `pos`: Where we are in the input (starting at 0), `current_char`: The character we're currently looking at.  
-Lists of functions and operators the lexer can recognize
-
-The lexer works like a cursor moving through the text, one character at a time.
-
-#### **3.4. Lexer Methods**
-```python
-def error(self):
-    # simple error msg
-    raise Exception(f"invalid char '{self.current_char}' at position {self.pos}")
-
-def advance(self):
-    # move position pointer and update current_char
-    self.pos += 1
-    if self.pos < len(self.text):
-        self.current_char = self.text[self.pos]
-    else:
-        self.current_char = None
-
-def skip_whitespace(self):
-    # skip spaces and tabs etc
-    while self.current_char is not None and self.current_char.isspace():
-        self.advance()
-```
-
-These are simple helper methods:
-`error()`: Shows an error message when something goes wrong. `advance()`: Moves to the next character in the input, `skip_whitespace()`: Skips over spaces, tabs, etc.
-
-The `advance()` method is super important because it's how the lexer moves through the input text. When it gets to the end, it sets `current_char` to `None` to show there's nothing left to read.
-
-#### **3.5. Handling Numbers**
+After finding a complete group, this code extracts the options by splitting the content by the pipe character. It then checks if the group is followed by a quantifier like *, +, ?, or a curly brace expression. For curly braces, it finds the complete quantifier by searching for the closing brace. Finally, it stores the group information (type, options, and quantifier) as a token in the list and updates the position in the regex.
 
 ```python
-def number(self):
-    # handle both int and float nums
-    result = ''
-    start_pos = self.pos
-    decimal_point = False
-    
-    while self.current_char is not None and (self.current_char.isdigit() or self.current_char == '.'):
-        if self.current_char == '.':
-            if decimal_point:  # already saw one decimal point
-                break
-            decimal_point = True
-        result += self.current_char
-        self.advance()
-    
-    # handle edge cases
-    if result == '.':
-        raise Exception(f"invalid number format at position {start_pos}")
-    
-    # convert to appropriate type
-    if '.' in result:
-        try:
-            return Token(TokenType.NUMBER, float(result), start_pos)
-        except ValueError:
-            raise Exception(f"invalid float format at position {start_pos}")
-    else:
-        try:
-            return Token(TokenType.NUMBER, int(result), start_pos)
-        except ValueError:
-            raise Exception(f"invalid integer format at position {start_pos}")
+def apply_quant(text, quant, max=5):
+    if not quant:
+        return text
 ```
-
-This method reads numbers from the input:
-It collects digits and at most one decimal point, then it keeps track of whether it's seen a decimal point already. So, handles special cases like just a decimal point with no digits, and it creates a NUMBER token with either an integer or float value
-
-So it can handle numbers like "42" or "3.14" and catch errors like "3..14".
-
-#### **3.6. Handling Identifiers**
+The next part is `apply_quant`. This function applies quantifiers to text elements, determining how many times to repeat a character or group. If no quantifier is provided, it simply returns the original text without any repetition. The function sets a foundation for handling different types of quantifiers that follow.
 
 ```python
-def identifier(self):
-    # handle var names and keywords
-    result = ''
-    start_pos = self.pos
-    
-    while self.current_char is not None and (self.current_char.isalnum() or self.current_char == '_'):
-        result += self.current_char
-        self.advance()
-    
-    # empty identifier check
-    if not result:
-        raise Exception(f"empty identifier at position {start_pos}")
-    
-    # check if its a function
-    if result in self.functions:
-        return Token(TokenType.FUNCTION, result, start_pos)
-    
-    return Token(TokenType.IDENTIFIER, result, start_pos)
+    if quant == '*':
+        n = random.randint(0, max)
+        return text * n
+    elif quant == '+':
+        n = random.randint(1, max)
+        return text * n
+    elif quant == '?':
+        return text if random.choice([True, False]) else ""
+    elif quant.startswith('{'):
+        inside = quant[1:-1]
+        if ',' in inside:
+            parts = inside.split(',')
+            if parts[1]:
+                min_n = int(parts[0])
+                max_n = min(int(parts[1]), max)
+            else:
+                min_n = int(parts[0])
+                max_n = max
+            n = random.randint(min_n, max_n)
+        else:
+            n = int(inside)
+        return text * n
+
+    return text
 ```
-
-This method reads identifiers (variable names or function names):
-1. It collects letters, numbers, and underscores
-2. It checks if the identifier is empty (shouldn't happen, but just in case)
-3. It checks if the identifier is a known function name
-4. It returns either a FUNCTION token or an IDENTIFIER token
-
-This lets it recognize variable names like "x" or "result" and function names like "sin" or "cos".
-
-#### **3.7. Getting the Next Token**
+The function handles many cases: `*` (zero or more), `+` (one or more), `?` (zero or one), and `{}` which has exact or range values. If no quantifier is found, it returns the text once.  
+ For the asterisk (*), it randomly repeats the text 0 to 5 times, while for plus (+), it ensures at least one repetition. The question mark (?) randomly decides whether to include the text or not.
 
 ```python
-def get_next_token(self):
-        # main tokenizing method
-        while self.current_char is not None:
-            
-            if self.current_char.isspace():
-                self.skip_whitespace()
-                continue
-            if self.current_char.isdigit() or self.current_char == '.':
-                return self.number()
-            if self.current_char.isalpha() or self.current_char == '_':
-                return self.identifier()
-            if self.current_char in self.operators:
-                token = Token(TokenType.OPERATOR, self.current_char, self.pos)
-                self.advance()
-                return token
-            if self.current_char == '(':
-                token = Token(TokenType.LPAREN, self.current_char, self.pos)
-                self.advance()
-                return token
-            if self.current_char == ')':
-                token = Token(TokenType.RPAREN, self.current_char, self.pos)
-                self.advance()
-                return token
-            if self.current_char == '=':
-                token = Token(TokenType.ASSIGNMENT, self.current_char, self.pos)
-                self.advance()
-                return token
-            
-            self.error()
-        
-        return Token(TokenType.EOF, None, self.pos)
+def gen_string(tokens, max=5):
+    result = ""
+    for type, val, quant in tokens:
+        if type == 'char':
+            result += apply_quant(val, quant, max)
+        elif type == 'group':
+            choice = random.choice(val)
+            result += apply_quant(choice, quant, max)
+    return result
 ```
-
-This is the main method that identifies and returns the next token:
-It skips any whitespace, based on the current character, it decides what kind of token to create:
-   - If it's a digit or decimal point, it calls `number()`
-   - If it's a letter or underscore, it calls `identifier()`
-   - If it's an operator, it creates an OPERATOR token
-   - If it's a parenthesis, it creates an LPAREN or RPAREN token
-   - If it's an equals sign, it creates an ASSIGNMENT token  
-If nothing matches, it reports an error, and if there's nothing left to read, it returns an EOF token
-
-This is where the lexer decides what kind of token it's looking at based on the first character.
-
-#### **Tokenizing a Whole String**
+The `gen_string` function creates the final string by using the tokens.  For each token, it checks whether it's a character or a group, then applies the appropriate action. For characters, it directly applies the quantifier to the value, while for groups, it first randomly selects one option from the available choices before applying the quantifier. The function builds the result string incrementally, combining all processed tokens.
 
 ```python
-def tokenize(self):
-        tokens = []
-        
-        try:
-            token = self.get_next_token()
-            
-            while token.type != TokenType.EOF:
-                tokens.append(token)
-                token = self.get_next_token()
-            
-            tokens.append(token)  # append EOF token
-        except Exception as e:
-            print(f"Tokenization failed: {e}")
-            return []
-            
-        return tokens
+def trace_gen(regex, max=5):
+    tokens = re(regex)
+    steps = []
+    res = ""
+    for i, (type, val, quant) in enumerate(tokens, 1):
+        if type == 'char':
+            gen = apply_quant(val, quant, max)
+            res += gen
+            steps.append(f"{i}) char '{val}'{f' {quant}' if quant else ''} -> '{gen}' -> '{res}'")
+        elif type == 'group':
+            choice = random.choice(val)
+            gen = apply_quant(choice, quant, max)
+            res += gen
+            steps.append(f"{i}) group {val}{f' {quant}' if quant else ''} -> '{choice}' -> '{gen}' -> '{res}'")
+    return steps, res
 ```
-
-This method tokenizes a whole input string, it creates an empty list for tokens, keeps calling `get_next_token()` until it gets an EOF token, adds all the tokens to the list, if there's an error, it prints a message and returns an empty list, otherwise, it returns the list of tokens.
-
-This makes it easy to tokenize a whole string at once instead of having to get tokens one by one.
-
-### **Testing the Lexer**
-
-I tested my lexer with different expressions to see if it works correctly:
-
-```python
-def main():
-    test_expressions = [
-        "x = 10 + 5",
-        "result = sin(0.5) + cos(3.14)",
-        "a = 2 * (b + c)",
-        "3.14159 + 42",
-        
-        "3..14 + 2",
-        "var_name_ = 123",
-        "sin(cos(x))",
-        "a++b",
-        "",
-        "   ",
-        "123abc",
-        ".5 + 2",
-    ]
-```
-
-I tried both normal expressions and some tricky cases to see how my lexer would handle them.
+The `trace_gen` function shows the steps used to build the string. It is very helpful for understanding how each character or group was used. It returns both the trace and the final string. At the end, the main part of the script tests three different regex expressions. It shows five outputs for each one and prints the steps that created them.
 
 ---
 
 ## **6. Conclusions**
 
-This lab centered on the implementation of a lexical analyzer capable of recognizing tokens from arithmetic expressions, including numbers, identifiers, operators, parentheses, and trigonometric functions. The lexer successfully processed a variety of inputs, demonstrating its ability to correctly categorize tokens and track their positions within the input string. The handling of basic arithmetic expressions, function calls, and variable assignments was generally accurate, aligning with the core objectives of the lab.
+This lab shows how regular expressions work from the inside. Instead of using a library like re in Python, we wrote a program that breaks a regex into tokens, finds quantifiers, and then uses them to generate strings. This required thinking about how groups and characters are used and how repetition is handled.
 
-However, during testing, several inconsistencies were observed. Notably, the input '3..14 + 2' resulted in the lexer incorrectly producing two separate number tokens, '3.0' and '0.14', instead of flagging an error or interpreting it as a single invalid token. Similarly, the input 'a + b' produced two operator tokens, which is clearly an error. These issues indicate potential bugs in the lexer's handling of edge cases and invalid input formats, suggesting a need for more robust error handling and input validation.
+One important part of the implementation was the `apply_quant` function. It lets the program know how many times to repeat a character or group, also used `gen_string` to combine everything together and create a full result. Another useful part was the tracing function: shows what happens at each step: which group was picked, how many times a character was added, and the final result.
 
-Despite these shortcomings, the lexer's ability to track token positions and handle a wide range of valid inputs is commendable. The implementation of implicit multiplication in the 'a = 2 ( b + c )' case, while unconventional, highlights the lexer's flexibility and potential for handling more complex language features. Comparing this lab with previous assignments, the unexpected tokenization of '3..14' and 'a + b' suggests that while the lexer performs well under standard conditions, it requires further refinement to ensure accuracy and robustness across all possible inputs. The core objectives of the lab were largely achieved, but the identified bugs necessitate further debugging and testing to create a reliable and production-ready lexical analyzer.
+The outputs shown in the attached image (result.png) are examples of what the program produced. Each regular expression is tested multiple times, and different valid strings are generated each time. Under each set of outputs, there is a list of steps taken by the program to construct the string. For example, in RE 1 `(S|T)(U|V)W*Y+24`, the string "SUWWWWYY24" was made by choosing "S", "U", repeating "W" four times, repeating "Y" two times, and then adding "2" and "4". 
+
+In RE 2, the string always starts with "L", followed by either "M" or "N", then three "O", some "P", one "Q", and either 2 or 3. The generated strings like "LMOOOPPQ2" are correct according to the pattern. The program shows that it selects each part based on logic from the parsed regex.
+
+In RE 3, the structure starts with multiple "R", then "S", then a group value from T, U, or V, followed by "W", and finally two values from X, Y, or Z. Generated results like "RRRSUWYY" or "STWXX" are again correct.
+
+This lab combines ideas from formal languages, string generation, and parsing algorithms. It is useful for learning how compilers and interpreters handle input and break down code into understandable parts. It also gives experience with recursive structures and dynamic programming.
 
 ---
 
 ## **7. Bibliography**
 
-1. [Lexer & Scanner Implementation - GitHub](https://github.com/filpatterson/DSL_laboratory_works/tree/master/2_FiniteAutomata)
-2. [Lexical Analysis (Wikipedia)](https://en.wikipedia.org/wiki/Lexical_analysis)
-3. [LLVM Tutorial - Implementing a Lexer](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html)
+1. [Regular expression Implementation - GitHub](https://github.com/AlexandraB-C/LFA_labs/tree/main/lab4)
+2. [Regular expression (GitHub-Task)](https://github.com/filpatterson/DSL_laboratory_works/blob/master/4_regular_expressions/task.md)
+3. [Regular expression (Wikipedia)](https://en.wikipedia.org/wiki/Regular_expression)
 4. [Regular Expressions Tutorial (RegexOne)](https://regexone.com/)
-5. [How to Write a Lexer in Python](https://tomassetti.me/parsing-in-python/)
-6. [Finite Automata (GeeksforGeeks)](https://www.geeksforgeeks.org/finite-automata-fa/)
+5. [Python RegEx](https://www.w3schools.com/python/python_regex.asp)
+6. [Python Regular Expressions](https://developers.google.com/edu/python/regular-expressions)
