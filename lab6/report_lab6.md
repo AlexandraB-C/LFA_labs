@@ -19,12 +19,27 @@
 ---
 
 ## **1. Theory**
+#### **1.1. Parser**
+A parser changes input code (shown as tokens) into a tree structure called an Abstract Syntax Tree (AST). The parser checks if the code follows the language rules and makes a tree that shows the code's structure.
 
-### **L:**
-**Definition:** L
-### **Key Concepts:** 
+#### **1.2. Key Concepts**
+Abstract Syntax Tree (AST): A tree that shows the structure of code. Each part of the tree represents a part of the code.
+Recursive Descent Parsing: A method where the parser uses functions that call each other. Each function handles one rule of the language.
+Grammar Rules: Rules that say what is correct in a programming language. For example, assignment → expr [= expr] is a rule.
+Operator Precedence: The order in which operations happen. For example, multiplication happens before addition.
 
-### **C:**
+The paarser can change tokens into an AST, check if math expressions and assignments are correct, handle operations in the right order, show function calls and expressions in parentheses.
+#### **1.3. Example**
+Input: sin(cos(x))
+This parses into the following Abstract Syntax Tree:
+```
+FuncCall: sin
+  Arg:
+    FuncCall: cos
+      Arg:
+        Id: x
+```
+This tree shows that sin is a function call with one argument. That argument is itself another function call, cos, which has the identifier x as its argument. The parser correctly handles nested function calls, preserving their relationship in the tree structure.
 
 ---
 
@@ -44,78 +59,145 @@
 ## **3. Implementation**
 
 ### **Code explanation**  
-#### **3.1. Token Types**
+#### **3.1. AST Node Classes**
 ```python
-from enum import Enum, auto
+class ASTNode:
+    pass
 
-class TokenType(Enum):
-    NUMBER = auto()
-    IDENTIFIER = auto()
-    OPERATOR = auto()
-    FUNCTION = auto()
-    LPAREN = auto()
-    RPAREN = auto()
-    ASSIGNMENT = auto()
-    EOF = auto()
-```
-
-This code defines an enumeration that categorizes all possible token types our lexer can recognize:
-- `NUMBER`: Represents numeric values (integers or floating-point)
-- `IDENTIFIER`: Represents variable names or other identifiers
-- `OPERATOR`: Represents mathematical operators (+, -, *, /, ^)
-- `FUNCTION`: Represents built-in functions (sin, cos)
-- `LPAREN` and `RPAREN`: Represent left and right parentheses
-- `ASSIGNMENT`: Represents the assignment operator (=)
-- `EOF`: Represents the end of the input  
-
-Using `Enum` makes the code cleaner than just using strings. The `auto()` function gives each type a unique number automatically.
-
-#### **3.2. Token Class**
-
-```python
-class Token:
-    def __init__(self, type, value, position):
-        self.type = type
-        self.value = value
-        self.position = position
+class NumNode(ASTNode):
+    def __init__(self, val):
+        self.val = val
     
     def __str__(self):
-        return f"Token({self.type}, '{self.value}', pos={self.position})"
-    
-    def __repr__(self):
-        return self.__str__()
+        return f"Num({self.val})"
 ```
 
-This class is like a container for token information:
-- `type`: What kind of token it is
-- `value`: The actual text of the token
-- `position`: Where the token starts in the input
+This code creates the base ASTNode class and the NumNode class for numbers. Each node type comes from the base class and has its own setup. This creates a system where different kinds of expressions can be handled in the language.
 
-The `__str__` and `__repr__` methods just make tokens print nicely when I debug, showing something like `Token(TokenType.NUMBER, '42', pos=0)`.
+```python
+class BinOpNode(ASTNode):
+    def __init__(self, left, op, right):
+        self.left = left
+        self.op = op
+        self.right = right
+    
+    def __str__(self):
+        return f"BinOp({self.op}, {self.left}, {self.right})"
+```
 
+The BinOpNode shows operations like addition and multiplication. It stores the operation symbol and what's on the left and right sides. This makes a tree that can show complex expressions with many parts.
+
+#### **3.2.  Token Consumption**
+```python
+def eat(self, tok_type):
+    if self.curr_tok and self.curr_tok.type == tok_type:
+        tok = self.curr_tok
+        self.pos += 1
+        self.curr_tok = self.tokens[self.pos] if self.pos < len(self.tokens) else None
+        return tok
+    else:
+        return self.error(f"Expected {tok_type}, got {self.curr_tok.type if self.curr_tok else 'None'}")
+```
+
+The eat method takes a token of the expected type, moves forward, and returns the token. If the current token is wrong, it reports an error. This method is very important because it checks tokens and moves through them, making sure the code is correct.
+
+#### **3.3. Recursive Descent**
+```python
+def expr(self):
+    # expr -> term [(+|-) term]*
+    node = self.term()
+    
+    if not node:
+        return None
+    
+    while (self.curr_tok and 
+           self.curr_tok.type == TokenType.OPERATOR and 
+           self.curr_tok.value in ('+', '-')):
+        
+        op_tok = self.eat(TokenType.OPERATOR)
+        if not op_tok:
+            return None
+            
+        right = self.term()
+        if not right:
+            return None
+            
+        node = BinOpNode(node, op_tok.value, right)
+    
+    return node
+```
+
+The expr method handles addition and subtraction. It first gets a term and then processes any + or - operators that follow. This shows how each grammar rule becomes a method that can call other rule methods.
+
+```python
+def term(self):
+    # term -> factor [(*|/) factor]*
+    node = self.factor()
+    
+    if not node:
+        return None
+    
+    while (self.curr_tok and 
+           self.curr_tok.type == TokenType.OPERATOR and 
+           self.curr_tok.value in ('*', '/')):
+        
+        op_tok = self.eat(TokenType.OPERATOR)
+        if not op_tok:
+            return None
+            
+        right = self.factor()
+        if not right:
+            return None
+            
+        node = BinOpNode(node, op_tok.value, right)
+    
+    return node
+```
+
+The term method handles multiplication and division, similar to expr. By having term and expr as separate methods that call each other in a specific order, the parser makes sure multiplication/division happens before addition/subtraction. Same goes for factor method.
+
+#### **3.4. Assignment Handling**
+```python
+def assignment(self):
+    # assignment -> expr [= expr]
+    expr = self.expr()
+    
+    if not expr:
+        return None
+    
+    if self.curr_tok and self.curr_tok.type == TokenType.ASSIGNMENT:
+        token = self.eat(TokenType.ASSIGNMENT)
+        if not token:
+            return None
+            
+        right = self.expr()
+        if not right:
+            return None
+            
+        if isinstance(expr, IdNode):
+            return AssignNode(expr, right)
+        else:
+            return self.error("Left side of assignment must be identifier")
+    
+    return expr
+```
+
+The assignment method handles assignments of values to variables. It first gets an expression and then checks if there's an = sign. If so, it makes sure the left side is a variable name and creates an AssignNode. This allows both simple expressions and assignments to work.
 
 ---
 
-## **6. Conclusions**
+## **4. Conclusions**
 
-This lab centered on the implementation of a lexical analyzer capable of recognizing tokens from arithmetic expressions, including numbers, identifiers, operators, parentheses, and trigonometric functions. The lexer successfully processed a variety of inputs, demonstrating its ability to correctly categorize tokens and track their positions within the input string. The handling of basic arithmetic expressions, function calls, and variable assignments was generally accurate, aligning with the core objectives of the lab.
+The parser works well for simple expressions but has clear limitations. As seen in the image, it can correctly parse function calls like sin(cos(x)), basic math expressions like 3.14 + 2, and variable assignments like var_name = 123.
 
-However, during testing, several inconsistencies were observed. Notably, the input '3..14 + 2' resulted in the lexer incorrectly producing two separate number tokens, '3.0' and '0.14', instead of flagging an error or interpreting it as a single invalid token. Similarly, the input 'a + b' produced two operator tokens, which is clearly an error. These issues indicate potential bugs in the lexer's handling of edge cases and invalid input formats, suggesting a need for more robust error handling and input validation.
+However, the error handling needs improvement. The results show several failures: when parsing a+*b, the parser gives an "Unexpected token" error but doesn't explain clearly what went wrong. Similarly, with sin(), it fails because it expects something inside the parentheses but doesn't guide the user well. The error message for 5 = x correctly states "Left side of assignment must be identifier" but doesn't suggest a fix.
 
-Despite these shortcomings, the lexer's ability to track token positions and handle a wide range of valid inputs is commendable. The implementation of implicit multiplication in the 'a = 2 ( b + c )' case, while unconventional, highlights the lexer's flexibility and potential for handling more complex language features. Comparing this lab with previous assignments, the unexpected tokenization of '3..14' and 'a + b' suggests that while the lexer performs well under standard conditions, it requires further refinement to ensure accuracy and robustness across all possible inputs. The core objectives of the lab were largely achieved, but the identified bugs necessitate further debugging and testing to create a reliable and production-ready lexical analyzer.
+The parser also fails completely with empty input, showing just "Construction failed" without details. These examples show that the parser could provide better error messages that tell users exactly what's wrong and how to fix it. Adding line and position information to errors would also help users find and correct problems faster.
 
 ---
 
-## **7. Bibliography**
+## **5. Bibliography**
 1. [Parsing Wiki](https://en.wikipedia.org/wiki/Parsing)
-
 2. [Abstract Syntax Tree Wiki](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
- 
-1. [Chomsky Normal Form (GitHub)](https://github.com/filpatterson/DSL_laboratory_works/blob/master/5_ChomskyNormalForm/task.md)
-2. [Chomsky Normal Form Wiki (Wikipedia)](https://en.wikipedia.org/wiki/Chomsky_normal_form)
-
-
-3. [LLVM Tutorial - Implementing a Lexer](https://llvm.org/docs/tutorial/MyFirstLanguageFrontend/LangImpl01.html)
-4. [Regular Expressions Tutorial (RegexOne)](https://regexone.com/)
-5. [How to Write a Lexer in Python](https://tomassetti.me/parsing-in-python/)
-6. [Finite Automata (GeeksforGeeks)](https://www.geeksforgeeks.org/finite-automata-fa/)
+3. [Abstract Syntax Tree (GeeksforGeeks)](https://www.geeksforgeeks.org/abstract-syntax-tree-vs-parse-tree/)
+4. [Understand Abstract Syntax Trees (YouTube)](www.youtube.com/watch?v=tM_S-pa4xDk&pp=ygUMI2FzdHNvZnR3YXJl)
