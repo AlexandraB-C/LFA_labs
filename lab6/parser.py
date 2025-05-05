@@ -1,6 +1,5 @@
 from lexer import Lexer, TokenType, Token
 
-# AST node cl
 class ASTNode:
     pass
 
@@ -43,132 +42,151 @@ class AssignNode(ASTNode):
     def __str__(self):
         return f"Assign({self.id_node}, {self.expr})"
 
-class ParserError(Exception):
-    pass
-
 class Parser:
     def __init__(self, tokens):
         self.tokens = tokens
         self.pos = 0
         self.curr_tok = self.tokens[0] if tokens else None
     
-    def err(self, expected=None):
-        if not self.curr_tok:
-            raise ParserError("Unexpected end of input")
-        
-        tok = self.curr_tok
-        msg = f"Syntax error at pos {tok.position}: got {tok.type}"
-        if tok.value is not None:
-            msg += f" '{tok.value}'"
-        if expected:
-            msg += f", expected {expected}"
-        raise ParserError(msg)
+    def error(self, msg="Syntax error"):
+        print(f"Error: {msg}")
+        return None
     
     def eat(self, tok_type):
-        if not self.curr_tok:
-            self.err(f"{tok_type}")
-            
-        if self.curr_tok.type == tok_type:
+        if self.curr_tok and self.curr_tok.type == tok_type:
             tok = self.curr_tok
             self.pos += 1
             self.curr_tok = self.tokens[self.pos] if self.pos < len(self.tokens) else None
             return tok
         else:
-            self.err(f"{tok_type}")
+            return self.error(f"Expected {tok_type}, got {self.curr_tok.type if self.curr_tok else 'None'}")
     
     def parse(self):
+        #parsing with assignment rule
         if not self.tokens or len(self.tokens) <= 1:  # Only EOF token
             return None
-        
-        try:
-            #parsing from highest level rule
-            return self.assignment()
-        except ParserError as e:
-            print(f"Parser error: {e}")
-            return None
-        except Exception as e:
-            print(f"Unexpected error: {e}")
-            return None
+            
+        return self.assignment()
     
     def assignment(self):
-        """Rule: assignment -> expr [= expr]"""
+        # assignment -> expr [= expr]
         expr = self.expr()
         
-        # heck for assgn operator
+        if not expr:
+            return None
+        
         if self.curr_tok and self.curr_tok.type == TokenType.ASSIGNMENT:
-            self.eat(TokenType.ASSIGNMENT)
+            token = self.eat(TokenType.ASSIGNMENT)
+            if not token:
+                return None
+                
             right = self.expr()
-            
+            if not right:
+                return None
+                
             if isinstance(expr, IdNode):
                 return AssignNode(expr, right)
             else:
-                self.err("identifier on left side of assignment")
+                return self.error("Left side of assignment must be identifier")
         
         return expr
     
     def expr(self):
-        """Rule: expr -> term [(+|-) term]*"""
+        # expr -> term [(+|-) term]*
         node = self.term()
+        
+        if not node:
+            return None
         
         while (self.curr_tok and 
                self.curr_tok.type == TokenType.OPERATOR and 
                self.curr_tok.value in ('+', '-')):
-            op = self.eat(TokenType.OPERATOR).value
-            node = BinOpNode(node, op, self.term())
+            
+            op_tok = self.eat(TokenType.OPERATOR)
+            if not op_tok:
+                return None
+                
+            right = self.term()
+            if not right:
+                return None
+                
+            node = BinOpNode(node, op_tok.value, right)
         
         return node
     
     def term(self):
-        """Rule: term -> factor [(*|/) factor]*"""
+        # term -> factor [(*|/) factor]*
         node = self.factor()
+        
+        if not node:
+            return None
         
         while (self.curr_tok and 
                self.curr_tok.type == TokenType.OPERATOR and 
                self.curr_tok.value in ('*', '/')):
-            op = self.eat(TokenType.OPERATOR).value
-            node = BinOpNode(node, op, self.factor())
+            
+            op_tok = self.eat(TokenType.OPERATOR)
+            if not op_tok:
+                return None
+                
+            right = self.factor()
+            if not right:
+                return None
+                
+            node = BinOpNode(node, op_tok.value, right)
         
         return node
     
     def factor(self):
-        """Rule: factor -> NUMBER | IDENTIFIER | FUNCTION(expr) | (expr)"""
+        # factor -> NUMBER | IDENTIFIER | FUNCTION(expr) | (expr)
         if not self.curr_tok:
-            self.err("factor")
+            return self.error("Unexpected end of input")
             
-        tok = self.curr_tok
+        if self.curr_tok.type == TokenType.NUMBER:
+            token = self.eat(TokenType.NUMBER)
+            if not token:
+                return None
+            return NumNode(token.value)
         
-        if tok.type == TokenType.NUMBER:
-            self.eat(TokenType.NUMBER)
-            return NumNode(tok.value)
+        elif self.curr_tok.type == TokenType.IDENTIFIER:
+            token = self.eat(TokenType.IDENTIFIER)
+            if not token:
+                return None
+            return IdNode(token.value)
         
-        elif tok.type == TokenType.IDENTIFIER:
-            self.eat(TokenType.IDENTIFIER)
-            return IdNode(tok.value)
-        
-        elif tok.type == TokenType.FUNCTION:
-            func_name = tok.value
-            self.eat(TokenType.FUNCTION)
+        elif self.curr_tok.type == TokenType.FUNCTION:
+            func_name = self.curr_tok.value
+            token = self.eat(TokenType.FUNCTION)
+            if not token:
+                return None
             
-            try:
-                self.eat(TokenType.LPAREN)
-                arg = self.expr()
-                self.eat(TokenType.RPAREN)
-                return FuncCallNode(func_name, arg)
-            except ParserError:
-                raise ParserError(f"Invalid function call syntax for '{func_name}' at position {tok.position}")
-        
-        elif tok.type == TokenType.LPAREN:
-            self.eat(TokenType.LPAREN)
-            node = self.expr()
+            if not self.eat(TokenType.LPAREN):
+                return None
             
-            try:
-                self.eat(TokenType.RPAREN)
-                return node
-            except ParserError:
-                raise ParserError(f"Missing closing parenthesis for opening parenthesis at position {tok.position}")
+            arg = self.expr()
+            if not arg:
+                return None
+            
+            if not self.eat(TokenType.RPAREN):
+                return None
+                
+            return FuncCallNode(func_name, arg)
+        
+        elif self.curr_tok.type == TokenType.LPAREN:
+            if not self.eat(TokenType.LPAREN):
+                return None
+            
+            expr = self.expr()
+            if not expr:
+                return None
+            
+            if not self.eat(TokenType.RPAREN):
+                return None
+                
+            return expr
         
         else:
-            self.err("NUMBER, IDENTIFIER, FUNCTION or (")
+            return self.error(f"Unexpected token: {self.curr_tok.type}")
 
 def print_ast(node, lvl=0):
     if node is None:

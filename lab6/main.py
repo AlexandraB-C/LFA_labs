@@ -41,7 +41,7 @@ def main():
             print("\nAbstract Syntax Tree:")
             print_ast(ast)
         else:
-            print("\n------Abstract Syntax Tree construction failed-----")
+            print("\n------Construction failed-----")
 
 
 if __name__ == "__main__":
