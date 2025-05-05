@@ -1,4 +1,4 @@
-# Report Laboratory Work 5
+# Report Laboratory Work 6
 
 ## MINISTERUL EDUCAȚIEI, CULTURII ȘI CERCETĂRII
 ### AL REPUBLICII MOLDOVA
@@ -7,8 +7,8 @@
 **Departamentul Inginerie Software și Automatică**  
 
 ### **ALEXANDRA BUJOR-COBILI, FAF-232**  
-#### **Report - Laboratory work n.3**  
-#### **Chomsky Normal Form**  
+#### **Report - Laboratory work n.6**  
+#### **Parser & Building an Abstract Syntax Tree**  
 
 **Checked by:**  
 *Cretu Dumitru, university assistant*  
@@ -25,43 +25,19 @@
 ### **Key Concepts:** 
 
 ### **C:**
-### **Variant 4:**
-1. Eliminate ε productions
-2. Eliminate any renaming
-3. Eliminate inaccessible symbols
-4. Eliminate non productive symbols
-5. Convert to CNF form  
-```
-G = (Vn, Vt, P, S)
-Vn = {S, A, B, C, D}
-Vt = {a, b}
 
-P = {
-    S → aB
-    S → bA
-    S → A
-    A → B
-    A → AS
-    A → bBAB
-    A → b
-    B → b
-    B → bS
-    B → aD
-    B → ε
-    D → AA
-    C → Ba
-}
-```
 ---
 
 ## **2. Objectives**
 
-1. Learn about Chomsky Normal Form (CNF) [1].
-2. Get familiar with the approaches of normalizing a grammar.
-3. Implement a method for normalizing an input grammar by the rules of CNF.
-    1. The implementation needs to be encapsulated in a method with an appropriate signature (also ideally in an appropriate class/type).
-    2. The implemented functionality needs executed and tested.
-    3. Also, another **BONUS point** would be given if the student will make the aforementioned function to accept any grammar, not only the one from the student's variant.
+1. Get familiar with parsing, what it is and how it can be programmed [1].
+2. Get familiar with the concept of AST [2].
+3. In addition to what has been done in the 3rd lab work do the following:
+   1. In case you didn't have a type that denotes the possible types of tokens you need to:
+      1. Have a type __*TokenType*__ (like an enum) that can be used in the lexical analysis to categorize the tokens. 
+      2. Please use regular expressions to identify the type of the token.
+   2. Implement the necessary data structures for an AST that could be used for the text you have processed in the 3rd lab work.
+   3. Implement a simple parser program that could extract the syntactic information from the input text.
 
 ---
 
@@ -131,7 +107,10 @@ Despite these shortcomings, the lexer's ability to track token positions and han
 ---
 
 ## **7. Bibliography**
+1. [Parsing Wiki](https://en.wikipedia.org/wiki/Parsing)
 
+2. [Abstract Syntax Tree Wiki](https://en.wikipedia.org/wiki/Abstract_syntax_tree)
+ 
 1. [Chomsky Normal Form (GitHub)](https://github.com/filpatterson/DSL_laboratory_works/blob/master/5_ChomskyNormalForm/task.md)
 2. [Chomsky Normal Form Wiki (Wikipedia)](https://en.wikipedia.org/wiki/Chomsky_normal_form)
 
