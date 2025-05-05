@@ -8,7 +8,6 @@ class Grammar:
         self.s = s
         
     def __str__(self):
-        # simpler output format with | for alternatives
         result = ""
         for left, right_sides in self.p.items():
             result += f"{left}->"
@@ -18,15 +17,11 @@ class Grammar:
 
 
 def eliminate_epsilon_productions(grammar):
-    # find nullable symbols
     nullable = set()
-    
     for left, right_sides in grammar.p.items():
         if 'ε' in right_sides:
             nullable.add(left)
             right_sides.remove('ε')
-    
-    # find indirectly nullable
     changed = True
     while changed:
         changed = False
@@ -36,15 +31,11 @@ def eliminate_epsilon_productions(grammar):
                     nullable.add(left)
                     changed = True
     
-    # gen new productions
     new_productions = {left: set(right_sides) for left, right_sides in grammar.p.items()}
     
     for left, right_sides in grammar.p.items():
         for right in list(right_sides):
-            # get nullable positions
             nullable_positions = [i for i, symbol in enumerate(right) if symbol in nullable]
-            
-            # gen all combos
             for k in range(1, len(nullable_positions) + 1):
                 for positions in itertools.combinations(nullable_positions, k):
                     new_right = ''.join(symbol for i, symbol in enumerate(right) if i not in positions)
@@ -54,15 +45,11 @@ def eliminate_epsilon_productions(grammar):
     grammar.p = new_productions
     return grammar
 
-
 def eliminate_unit_productions(grammar):
-    # find unit pairs
     unit_pairs = set()
     
     for nt in grammar.vn:
         unit_pairs.add((nt, nt))
-    
-    # find all transitive
     changed = True
     while changed:
         changed = False
@@ -86,7 +73,6 @@ def eliminate_unit_productions(grammar):
 
 
 def find_accessible_symbols(grammar):
-    # get reachable syms
     accessible = {grammar.s}
     changed = True
     
@@ -106,7 +92,6 @@ def find_accessible_symbols(grammar):
 def eliminate_inaccessible_symbols(grammar):
     # rm unreachable
     accessible = find_accessible_symbols(grammar)
-    
     grammar.vn = grammar.vn.intersection(accessible)
     grammar.p = {left: right_sides for left, right_sides in grammar.p.items() if left in accessible}
     
@@ -114,7 +99,6 @@ def eliminate_inaccessible_symbols(grammar):
 
 
 def find_productive_symbols(grammar):
-    # get productive
     productive = set()
     
     # directly productive
@@ -123,7 +107,6 @@ def find_productive_symbols(grammar):
             if all(symbol in grammar.vt for symbol in right):
                 productive.add(left)
                 break
-    
     # indirectly productive
     changed = True
     while changed:
@@ -137,7 +120,6 @@ def find_productive_symbols(grammar):
                         break
     
     return productive
-
 
 def eliminate_non_productive_symbols(grammar):
     # rm non-productive
@@ -153,9 +135,7 @@ def eliminate_non_productive_symbols(grammar):
     
     return grammar
 
-
 def convert_to_cnf(grammar):
-    # term replacement
     terminal_replacements = {}
     new_productions = {left: set() for left in grammar.p}
     new_symbols = set()
@@ -179,7 +159,6 @@ def convert_to_cnf(grammar):
             else:
                 new_productions[left].add(right)
     
-    # break long rules
     final_productions = {**new_productions}
     more_new_symbols = set()
     
@@ -200,34 +179,32 @@ def convert_to_cnf(grammar):
             else:
                 final_productions[left].add(right)
     
-    # update gram
     grammar.vn = grammar.vn.union(new_symbols).union(more_new_symbols)
     grammar.p = final_productions
     
     return grammar
 
-
 def to_chomsky_normal_form(grammar):
-    print("INITIAL GRAMMAR:")
+    print("Base:")
     print(grammar)
     
-    print("\nSTEP 1: ε-PRODUCTIONS")
+    print("\n1) Eliminate ε productions")
     grammar = eliminate_epsilon_productions(grammar)
     print(grammar)
     
-    print("\nSTEP 2: UNIT PRODUCTIONS")
+    print("\n2) Eliminate any renaming")
     grammar = eliminate_unit_productions(grammar)
     print(grammar)
     
-    print("\nSTEP 3: INACCESSIBLE SYMBOLS")
+    print("\n3) Eliminate inaccessible symbols")
     grammar = eliminate_inaccessible_symbols(grammar)
     print(grammar)
     
-    print("\nSTEP 4: NON-PRODUCTIVE SYMBOLS")
+    print("\n4) Eliminate non productive symbols")
     grammar = eliminate_non_productive_symbols(grammar)
     print(grammar)
     
-    print("\nSTEP 5: CNF")
+    print("\n5) CNF")
     grammar = convert_to_cnf(grammar)
     print(grammar)
     
@@ -235,7 +212,6 @@ def to_chomsky_normal_form(grammar):
 
 
 def main():
-    # variant 4 grammar
     vn = {'S', 'A', 'B', 'C', 'D'}
     vt = {'a', 'b'}
     p = {
