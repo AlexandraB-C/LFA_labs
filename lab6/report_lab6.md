@@ -189,9 +189,9 @@ The assignment method handles assignments of values to variables. It first gets 
 ## **4. Conclusions**
 
 The parser works well for simple expressions but has clear limitations. As seen in the image, it can correctly parse function calls like sin(cos(x)), basic math expressions like 3.14 + 2, and variable assignments like var_name = 123.
-![Lab 6 Result](./result2.png)
+![Lab 6 Result](./result2.png)  
 However, the error handling needs improvement. The results show several failures: when parsing a++b, the parser gives an "Unexpected token" error but doesn't explain clearly what went wrong.
-![Lab 6 Result for a++b](./result1.png)
+![Lab 6 Result for a++b](./result1.png)  
 Similarly, with sin(), it fails because it expects something inside the parentheses but doesn't guide the user well. The error message for 5 = x correctly states "Left side of assignment must be identifier" but doesn't suggest a fix.
 
 The parser also fails completely with empty input, showing just "Construction failed" without details. These examples show that the parser could provide better error messages that tell users exactly what's wrong and how to fix it. Adding line and position information to errors would also help users find and correct problems faster.
